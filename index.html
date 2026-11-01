@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MATEMÁTICA - Medidas de Resumen de Datos: Tendencia Central y No Central (Facultad de Cs. Médicas - UCCuyo)</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- KaTeX para renderizado matemático formal de alta precisión -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathWhenReady()"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Google Fonts: Outfit & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: #f7f9f6;
+      color: #1e293b;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Paleta Institucional UCCuyo (Verde Oliva y Contrastes Bioestadísticos) */
+    .text-accent { color: #436600; }
+    .bg-accent { background-color: #436600; }
+    .bg-accent-hover:hover { background-color: #324d00; }
+    .bg-accent-light { background-color: #f1f6eb; }
+    .border-accent { border-color: #436600; }
+
+    .text-primary { color: #436600; }
+    .bg-primary { background-color: #436600; }
+    .bg-primary-dark { background-color: #324d00; }
+    .border-primary { border-color: #436600; }
+    
+    .focus-accent:focus {
+      border-color: #436600;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(67, 102, 0, 0.2);
+    }
+    
+    input[type=range] {
+      accent-color: #436600;
+    }
+    .grid-bg {
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .badge-katex .katex {
+      font-size: 1.05em;
+    }
+    canvas {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between selection:bg-accent/20 text-gray-800">
+
+  <!-- Cabecera Institucional UCCuyo -->
+  <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50 no-math">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-xl shadow-md">
+          M
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-bold text-gray-800 tracking-wide uppercase">MATEMÁTICA Y BIOESTADÍSTICA MÉDICA</h1>
+          <p class="text-xs text-gray-500 font-semibold">Curso de Ingreso a Medicina (Facultad de Cs. Médicas - UCCuyo)</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <!-- Botón Vademécum Teórico -->
+        <button onclick="openFormulasModal()" class="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-semibold rounded-lg border border-gray-200 hover:bg-gray-200 transition">
+          <i class="fa-solid fa-book-bookmark text-accent"></i>
+          <span class="hidden sm:inline">Vademécum</span>
+        </button>
+        <!-- Botón Guía de Uso -->
+        <button onclick="openTutorial()" class="flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white text-xs font-semibold rounded-lg shadow-sm hover:opacity-90 transition">
+          <i class="fa-solid fa-circle-question"></i>
+          <span>Guía de Uso</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Principal con Barra Lateral -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6">
+    
+    <!-- Menú de Navegación Lateral -->
+    <nav class="w-full lg:w-64 shrink-0 lg:shrink-0 flex flex-row lg:flex-col gap-2 bg-white p-3 rounded-2xl shadow-sm border border-gray-200 overflow-x-auto lg:overflow-x-visible whitespace-nowrap lg:whitespace-normal sticky top-20 h-fit" id="navTabs">
+      <button onclick="switchTab('central')" id="tab-btn-central" data-tab="central" class="nav-btn bg-accent text-white flex-1 lg:flex-none text-left py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-bullseye"></i> <span>1. Tendencia Central</span>
+      </button>
+      <button onclick="switchTab('mantoux')" id="tab-btn-mantoux" data-tab="mantoux" class="nav-btn text-gray-700 hover:bg-gray-100 flex-1 lg:flex-none text-left py-2.5 px-4 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-2">
+        <i class="fa-solid fa-syringe"></i> <span>2. Caso Mantoux ($n=51$)</span>
+      </button>
+      <button onclick="switchTab('nocentral')" id="tab-btn-nocentral" data-tab="nocentral" class="nav-btn text-gray-700 hover:bg-gray-100 flex-1 lg:flex-none text-left py-2.5 px-4 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-2">
+        <i class="fa-solid fa-chart-column"></i> <span>3. Cuartiles & Percentiles</span>
+      </button>
+      <button onclick="switchTab('calc')" id="tab-btn-calc" data-tab="calc" class="nav-btn text-gray-700 hover:bg-gray-100 flex-1 lg:flex-none text-left py-2.5 px-4 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-2">
+        <i class="fa-solid fa-calculator"></i> <span>4. Calculadora Dinámica</span>
+      </button>
+      <button onclick="switchTab('agrupados')" id="tab-btn-agrupados" data-tab="agrupados" class="nav-btn text-gray-700 hover:bg-gray-100 flex-1 lg:flex-none text-left py-2.5 px-4 rounded-xl text-xs sm:text-sm font-medium transition flex items-center gap-2 border-t lg:border-t border-gray-100">
+        <i class="fa-solid fa-table-list text-accent"></i> <span>5. Datos Agrupados</span>
+      </button>
+    </nav>
+
+    <!-- Área de Contenido Dinámico -->
+    <div class="flex-1 space-y-6 min-w-0">
+
+      <!-- ========================================================================= -->
+      <!-- SECCIÓN 1: TENDENCIA CENTRAL                                              -->
+      <!-- ========================================================================= -->
+      <div id="view-central" class="space-y-6">
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="max-w-3xl">
+            <span class="text-xs font-bold text-accent uppercase tracking-wider">Módulo Didáctico 1</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Medidas de Tendencia Central en Medicina</h2>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Las medidas de tendencia central localizan el centro de gravedad o punto focal de una distribución biológica. En la práctica clínica, seleccionar adecuadamente entre la <strong>Media</strong>, la <strong>Mediana</strong> y la <strong>Moda</strong> previene errores diagnósticos y decisiones terapéuticas erróneas provocadas por sesgos o valores atípicos (*outliers*).
+            </p>
+          </div>
+        </div>
+
+        <!-- Tríada: Media, Mediana, Moda -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Media Aritmética -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg">Parámetro Numérico</span>
+                <span class="text-xl font-mono font-bold text-slate-700">$\bar{x}$</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-3">Media Aritmética ($\bar{x}$)</h3>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Punto de balance o centro de gravedad donde la suma algebraica de las desviaciones se anula ($\sum(x_i - \bar{x}) = 0$).
+              </p>
+              
+              <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div class="text-[11px] font-semibold text-slate-700">Datos no agrupados:</div>
+                <div class="text-center py-1 text-slate-900 text-sm">
+                  $$\bar{x} = \frac{\sum_{i=1}^n x_i}{n}$$
+                </div>
+                <div class="text-[11px] font-semibold text-slate-700 pt-2 border-t border-slate-200">Datos agrupados en intervalos:</div>
+                <div class="text-center py-1 text-slate-900 text-sm">
+                  $$\bar{x} = \frac{\sum_{i=1}^k (m_i \cdot f_i)}{n}$$
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+              <span class="font-bold text-rose-600">Alerta Médica:</span> Muy sensible a valores extremos (ej. días de estancia en UTI o troponina sérica).
+            </div>
+          </div>
+
+          <!-- Mediana -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border-2 border-rose-200 relative flex flex-col justify-between ring-1 ring-rose-100">
+            <div class="absolute -top-3 right-4 bg-rose-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full shadow-sm">
+              Robusta / No Paramétrica
+            </div>
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg">Corte Mediano 50%</span>
+                <span class="text-xl font-mono font-bold text-rose-600">$Me = P_{50}$</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-3">Mediana ($Me$)</h3>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Valor que divide al conjunto ordenado de observaciones exactamente en dos partes iguales ($50\% \le Me$ y $50\% \ge Me$).
+              </p>
+
+              <div class="mt-4 p-3 bg-rose-50/60 rounded-xl border border-rose-200 space-y-2">
+                <div class="text-[11px] font-semibold text-rose-900">Fórmula de Posición Ordinal:</div>
+                <div class="text-center py-1 text-rose-900 font-semibold text-sm">
+                  $$\text{Posición}(Me) = \frac{n + 1}{2}$$
+                </div>
+                <p class="text-[10px] text-slate-600 italic">
+                  *Exige ordenamiento monótono creciente: $x_{(1)} \le x_{(2)} \le \dots \le x_{(n)}$.
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+              <span class="font-bold text-rose-700">Propiedad Clave:</span> Inmune al sesgo por valores aberrantes. Ideal para variables asimétricas.
+            </div>
+          </div>
+
+          <!-- Moda -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <span class="text-xs font-bold uppercase tracking-wider text-accent bg-accent-light px-2.5 py-1 rounded-lg">Máxima Frecuencia</span>
+                <span class="text-xl font-mono font-bold text-slate-700">$Mo$</span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-3">Moda ($Mo$)</h3>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                Valor o categoría que se presenta con la mayor frecuencia absoluta ($f_i$) en el colectivo clínico observado.
+              </p>
+
+              <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-slate-800">Unimodal:</span>
+                  <span class="text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">1 único pico</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-slate-800">Bimodal:</span>
+                  <span class="text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">2 picos</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-slate-800">Amodal:</span>
+                  <span class="text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">Frecuencias uniformes</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-500">
+              Única medida aplicable directamente a variables cualitativas nominales (ej. grupo sanguíneo ABO más común).
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Demostración Guiada: n Impar vs n Par -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-accent bg-accent-light px-2.5 py-1 rounded-lg">Demostración Guiada</span>
+              <h3 class="text-lg font-bold text-slate-900 mt-1">
+                Determinación de la Mediana: Caso $n$ Impar vs Caso $n$ Par
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Comprueba si el valor mediano pertenece al conjunto de datos original o si surge como semisuma aritmética.
+              </p>
+            </div>
+            
+            <div class="inline-flex p-1 bg-slate-100 rounded-xl self-start sm:self-auto border border-slate-200">
+              <button onclick="setParityDemo('odd')" id="btn-demo-odd" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-accent shadow-sm">
+                Caso 1: $n = 5$ (Impar)
+              </button>
+              <button onclick="setParityDemo('even')" id="btn-demo-even" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                Caso 2: $n = 6$ (Par)
+              </button>
+            </div>
+          </div>
+
+          <div id="parity-demo-container" class="space-y-4">
+            <!-- Inyectado por JS -->
+          </div>
+        </div>
+
+        <!-- Principio de Robustez -->
+        <div class="bg-accent-light border border-accent/20 rounded-2xl p-5 text-slate-700">
+          <div class="flex items-start gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-accent mt-1.5 shrink-0 animate-pulse"></span>
+            <div class="text-xs sm:text-sm">
+              <strong class="text-accent block mb-1">Principio de Robustez Bioestadística: ¿Por qué la Mediana protege al médico?</strong>
+              Si 5 pacientes con neumonía tienen estadías de <code class="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-xs">3, 4, 5, 6, 7</code> días, $\bar{x} = 5$ y $Me = 5$.
+              Si un paciente sufre una infección intrahospitalaria y se queda <code class="bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded font-mono font-bold text-xs">45 días</code> (<code class="bg-white px-1 py-0.5 rounded font-mono text-xs">3, 4, 5, 6, 45</code>),
+              la media se dispara artificialmente a $\bar{x} = 12.6\,\text{días}$ (un valor engañoso para el $80\%$ de los casos), mientras que la <strong>mediana permanece intacta en $Me = 5\,\text{días}$</strong>.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SECCIÓN 2: CASO MANTOUX                                                   -->
+      <!-- ========================================================================= -->
+      <div id="view-mantoux" class="hidden space-y-6">
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 pb-4 border-b border-slate-100">
+            <div class="space-y-1 max-w-3xl">
+              <span class="text-xs font-bold text-rose-600 uppercase tracking-wider bg-rose-50 px-2.5 py-1 rounded-lg">Caso Clínico Real | Epidemiología y Neumonología</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Prueba de Mantoux (Tuberculina / PPD en Vacunados con BCG)</h2>
+              <p class="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                Diámetro de induración cutánea transversal en milímetros ($\text{mm}$) medido a las 72 horas en $n = 51$ individuos sanjuaninos vacunados con BCG.
+              </p>
+            </div>
+            <div class="flex flex-wrap gap-2 text-xs">
+              <div class="bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-center">
+                <span class="block text-[10px] font-bold text-slate-500 uppercase">Muestra</span>
+                <span class="text-base font-mono font-bold text-slate-800">$n = 51$</span>
+              </div>
+              <div class="bg-rose-50 border border-rose-200 px-3 py-2 rounded-xl text-center">
+                <span class="block text-[10px] font-bold text-rose-700 uppercase">Mediana Real</span>
+                <span class="text-base font-mono font-bold text-rose-700">$x_{(26)} = 19\,\text{mm}$</span>
+              </div>
+              <div class="bg-accent-light border border-accent/20 px-3 py-2 rounded-xl text-center">
+                <span class="block text-[10px] font-bold text-accent uppercase">Moda Observada</span>
+                <span class="text-base font-mono font-bold text-accent">$Mo = 20\,\text{mm}$</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Demostración Matemática y Simetría -->
+          <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <h4 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                Cálculo Ordinal de la Mediana
+              </h4>
+              <p class="text-slate-600">1. Serie ordenada de 51 mediciones monótonas crecientes:</p>
+              <div class="text-center font-mono py-1 bg-white rounded border border-slate-200">
+                $$x_{(1)} \le x_{(2)} \le \dots \le x_{(25)} < \mathbf{x_{(26)}} < x_{(27)} \le \dots \le x_{(51)}$$
+              </div>
+              <p class="text-slate-600">2. Determinación de la posición ordinal central:</p>
+              <div class="text-center py-1 font-mono font-bold text-accent">
+                $$\text{Posición}(Me) = \frac{51 + 1}{2} = 26 \implies Me = x_{(26)} = 19\,\text{mm}$$
+              </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <h4 class="font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-accent"></span>
+                Verificación de Simetría Posicional
+              </h4>
+              <p class="text-slate-600">
+                La mediana separa a los 51 pacientes en dos grupos exactamente equitativos de <strong>25 observaciones cada uno</strong>:
+              </p>
+              <div class="grid grid-cols-2 gap-2 text-center pt-1 font-mono text-[11px]">
+                <div class="bg-sky-50 border border-sky-200 p-2 rounded-lg">
+                  <div class="font-bold text-sky-900 text-xs">25 Pacientes</div>
+                  <div class="text-slate-600 mt-0.5">$x_{(1)} \dots x_{(25)} \le 19\,\text{mm}$</div>
+                </div>
+                <div class="bg-indigo-50 border border-indigo-200 p-2 rounded-lg">
+                  <div class="font-bold text-indigo-900 text-xs">25 Pacientes</div>
+                  <div class="text-slate-600 mt-0.5">$x_{(27)} \dots x_{(51)} \ge 19\,\text{mm}$</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Matriz Interactiva de los 51 Pacientes -->
+          <div class="mt-8 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="text-sm font-bold text-slate-900">
+                  Explorador de Pacientes Ordenados ($x_{(1)}$ a $x_{(51)}$)
+                </h3>
+                <p class="text-[11px] text-slate-500">
+                  Haz clic o toca cualquier ficha de paciente para inspeccionar su valor medido y condición percentilar.
+                </p>
+              </div>
+              <div class="flex items-center gap-3 text-[11px]">
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-sky-100 border border-sky-300"></span> Primeros 25</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-600 text-white font-bold flex items-center justify-center text-[9px]">Me</span> Mediana x(26)</span>
+                <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-indigo-100 border border-indigo-300"></span> Segundos 25</span>
+              </div>
+            </div>
+
+            <div id="mantoux-chips-grid" class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-9 lg:grid-cols-11 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-96 overflow-y-auto custom-scrollbar">
+              <!-- Inyectado por JS -->
+            </div>
+
+            <!-- Inspector de Paciente -->
+            <div id="mantoux-inspector" class="p-4 rounded-xl bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div id="insp-badge" class="w-10 h-10 rounded-lg bg-rose-600 flex items-center justify-center font-mono font-bold text-sm">
+                  x(26)
+                </div>
+                <div>
+                  <div class="text-xs text-slate-400">Paciente Seleccionado</div>
+                  <div id="insp-title" class="font-bold text-sm">Individuo Ordinal #26 (Mediana Central)</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-6">
+                <div class="text-center sm:text-right">
+                  <div class="text-xs text-slate-400">Diámetro de Induración</div>
+                  <div id="insp-val" class="text-xl font-mono font-extrabold text-rose-400">19 mm</div>
+                </div>
+                <div class="text-center sm:text-right border-l border-slate-700 pl-6">
+                  <div class="text-xs text-slate-400">Condición Posicional</div>
+                  <div id="insp-stat" class="text-xs font-semibold text-emerald-400">Pivote Exacto (P50)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Histograma y Moda -->
+          <div class="mt-8 pt-6 border-t border-slate-200 space-y-3">
+            <h3 class="text-sm font-bold text-slate-900">
+              Distribución de Frecuencias Absolutas y Pico Modal ($Mo$)
+            </h3>
+            <div id="mantoux-histogram" class="w-full h-56 bg-slate-50 rounded-xl border border-slate-200 p-4 flex items-end gap-1.5 sm:gap-2 overflow-x-auto">
+              <!-- Barras generadas por JS -->
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+              <span>Eje horizontal: Diámetro de induración ($\text{mm}$)</span>
+              <span class="font-semibold text-accent">Pico Modal: $Mo = 20\,\text{mm}$ (Frecuencia máxima: 7 pacientes)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SECCIÓN 3: MEDIDAS NO CENTRALES (CUARTILES Y PERCENTILES)                 -->
+      <!-- ========================================================================= -->
+      <div id="view-nocentral" class="hidden space-y-6">
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="max-w-3xl">
+            <span class="text-xs font-bold text-accent uppercase tracking-wider">Módulo Didáctico 3</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Medidas de Tendencia No Central: Cuartiles y Percentiles</h2>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              Las medidas no centrales o de posición dividen a las observaciones previamente ordenadas en fracciones porcentuales equitativas. Permiten ubicar la posición relativa de un paciente respecto a su población de referencia (ej. tablas pondoestaturales y percentiles de crecimiento pediátrico).
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Extremos -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-600 bg-slate-100 px-2.5 py-1 rounded-lg">Límites Naturales</span>
+              <span class="text-sm font-mono font-bold text-slate-700">[$x_{\min}$, $x_{\max}$]</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mt-3">Valores Extremos</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Mínimo ($x_{\min} = x_{(1)}$) y Máximo ($x_{\max} = x_{(n)}$). Delimitan la amplitud o recorrido total de la muestra:
+            </p>
+            <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 text-center font-mono text-sm text-slate-800">
+              $$\text{Rango} (R) = x_{\max} - x_{\min}$$
+            </div>
+            <p class="text-[11px] text-slate-500 mt-3">
+              Definen los límites del rango de referencia biológico.
+            </p>
+          </div>
+
+          <!-- Cuartiles -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border-2 border-accent/40 relative">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <span class="text-xs font-bold uppercase tracking-wider text-accent bg-accent-light px-2.5 py-1 rounded-lg">4 Partes Iguales</span>
+              <span class="text-sm font-mono font-bold text-accent">$Q_1, Q_2, Q_3$</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mt-3">Cuartiles ($Q_k$)</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              Tres valores que seccionan a la distribución ordenada en cuatro porciones del $25\%$ cada una:
+            </p>
+            
+            <div class="mt-3 space-y-1.5 text-xs">
+              <div class="flex justify-between items-center bg-slate-50 p-1.5 rounded border border-slate-200">
+                <span class="font-bold text-slate-800">$Q_1$ (Primer Cuartil):</span>
+                <span class="text-accent font-mono">Percentil 25 ($P_{25}$)</span>
+              </div>
+              <div class="flex justify-between items-center bg-rose-50 p-1.5 rounded border border-rose-200">
+                <span class="font-bold text-rose-800">$Q_2$ (Segundo Cuartil):</span>
+                <span class="text-rose-700 font-mono">Mediana ($P_{50}$)</span>
+              </div>
+              <div class="flex justify-between items-center bg-slate-50 p-1.5 rounded border border-slate-200">
+                <span class="font-bold text-slate-800">$Q_3$ (Tercer Cuartil):</span>
+                <span class="text-accent font-mono">Percentil 75 ($P_{75}$)</span>
+              </div>
+            </div>
+
+            <div class="mt-3 p-2 bg-accent-light rounded-lg text-center text-xs font-semibold text-accent border border-accent/20">
+              $$\text{Posición}(Q_k) = \frac{k(n + 1)}{4}$$
+            </div>
+          </div>
+
+          <!-- Percentiles -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg">100 Partes</span>
+              <span class="text-sm font-mono font-bold text-indigo-700">$P_1 \dots P_{99}$</span>
+            </div>
+            <h3 class="text-base font-bold text-slate-900 mt-3">Percentiles ($P_k$)</h3>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+              99 cortes ordenados. El percentil $k$ acumula el $k\%$ de las observaciones por debajo y el $(100-k)\%$ por encima.
+            </p>
+            <div class="mt-4 p-3 bg-indigo-50/70 rounded-xl border border-indigo-200 text-xs text-indigo-900 leading-relaxed">
+              <strong>Pediatría Clínica:</strong> Un lactante en el percentil 10 ($P_{10}$) de peso tiene al $90\%$ de sus pares sanos con mayor masa corporal.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Diagrama Conceptual 25% - 25% - 25% - 25% -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900">
+              Descomposición Cuartilar de la Muestra (Diagrama 25% - 25% - 25% - 25%)
+            </h3>
+            <p class="text-xs text-slate-500">
+              Visualización de los cuatro intervalos de densidad equitativa y el Rango Intercuartílico ($IQR = Q_3 - Q_1$).
+            </p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs font-bold text-white">
+              <div class="bg-sky-600 py-3 px-2 rounded-xl shadow-2xs">
+                <span>25%</span>
+                <div class="text-[10px] text-sky-100 font-normal">$x_{\min} \to Q_1$</div>
+              </div>
+              <div class="bg-accent py-3 px-2 rounded-xl shadow-2xs">
+                <span>25%</span>
+                <div class="text-[10px] text-lime-100 font-normal">$Q_1 \to Q_2$</div>
+              </div>
+              <div class="bg-emerald-600 py-3 px-2 rounded-xl shadow-2xs">
+                <span>25%</span>
+                <div class="text-[10px] text-emerald-100 font-normal">$Q_2 \to Q_3$</div>
+              </div>
+              <div class="bg-indigo-600 py-3 px-2 rounded-xl shadow-2xs">
+                <span>25%</span>
+                <div class="text-[10px] text-indigo-100 font-normal">$Q_3 \to x_{\max}$</div>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs font-mono font-bold text-slate-700 px-2 pt-2 border-t border-slate-200">
+              <div class="text-left">
+                <span class="block text-slate-400 font-sans text-[10px]">Mínimo</span>
+                <span>$x_{(1)}$</span>
+              </div>
+              <div class="text-center text-accent">
+                <span class="block text-slate-400 font-sans text-[10px]">Corte 25%</span>
+                <span>$Q_1 = P_{25}$</span>
+              </div>
+              <div class="text-center text-rose-600">
+                <span class="block text-rose-500 font-sans text-[10px] font-bold">Mediana 50%</span>
+                <span class="text-sm font-bold">$Q_2 = Me$</span>
+              </div>
+              <div class="text-center text-accent">
+                <span class="block text-slate-400 font-sans text-[10px]">Corte 75%</span>
+                <span>$Q_3 = P_{75}$</span>
+              </div>
+              <div class="text-right">
+                <span class="block text-slate-400 font-sans text-[10px]">Máximo</span>
+                <span>$x_{(n)}$</span>
+              </div>
+            </div>
+
+            <div class="mx-auto w-full sm:w-2/3 bg-accent-light border-2 border-dashed border-accent/40 rounded-xl p-3 text-center text-xs text-accent mt-3">
+              <strong>Rango Intercuartílico ($IQR$):</strong> Abarca el recorrido del <strong>50% central</strong> de los datos ($IQR = Q_3 - Q_1$). Es la base para la construcción de diagramas de caja (*Boxplot*).
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SECCIÓN 4: CALCULADORA DINÁMICA & LAB                                     -->
+      <!-- ========================================================================= -->
+      <div id="view-calc" class="hidden space-y-6">
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-bold text-accent uppercase tracking-wider bg-accent-light px-2.5 py-1 rounded-lg">Laboratorio Bioestadístico Interactivo</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Calculadora en Vivo de Medidas Centrales y No Centrales</h2>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Ingresa una serie numérica o carga un preset clínico. El motor ordenará los datos, identificará la paridad de $n$ y generará el informe estadístico con su gráfico de cuartiles.
+              </p>
+            </div>
+
+            <!-- Presets -->
+            <div class="flex flex-wrap gap-2 text-xs">
+              <button onclick="loadCalcPreset('mantoux')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg font-semibold transition">
+                💉 Mantoux ($n=51$)
+              </button>
+              <button onclick="loadCalcPreset('odd5')" class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg font-semibold transition">
+                🎯 Impar Demo ($n=5$)
+              </button>
+              <button onclick="loadCalcPreset('even6')" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded-lg font-semibold transition">
+                🎯 Par Demo ($n=6$)
+              </button>
+              <button onclick="loadCalcPreset('glucose')" class="px-3 py-1.5 bg-accent-light hover:bg-lime-100 text-accent border border-accent/20 rounded-lg font-semibold transition">
+                🩸 Glucemias ($n=11$)
+              </button>
+            </div>
+          </div>
+
+          <!-- Input Box -->
+          <div class="mt-6 space-y-3">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+              Valores de la Variable (Separados por coma o espacio):
+            </label>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <textarea id="calc-input" rows="2" class="w-full font-mono text-sm p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-accent focus:border-accent outline-none resize-none shadow-inner" placeholder="Ejemplo: 3, 7, 8, 12, 15"></textarea>
+              <button onclick="runCalculator()" class="px-6 py-3 bg-accent hover:bg-accent-hover text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-md transition flex items-center justify-center gap-2 whitespace-nowrap self-stretch sm:self-auto">
+                <i class="fa-solid fa-play"></i> Procesar Datos
+              </button>
+            </div>
+          </div>
+
+          <!-- Resultados Procesados -->
+          <div id="calc-results-wrapper" class="mt-8 space-y-6">
+            <!-- Inyectado por JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SECCIÓN 5: DATOS AGRUPADOS                                                -->
+      <!-- ========================================================================= -->
+      <div id="view-agrupados" class="hidden space-y-6">
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="max-w-3xl">
+            <span class="text-xs font-bold text-accent uppercase tracking-wider">Módulo Didáctico 4</span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">Media Aritmética para Datos Agrupados en Intervalos</h2>
+            <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+              En estudios epidemiológicos masivos, los datos se condensan en clases o intervalos $[L_i, L_s)$. Cada intervalo se sintetiza mediante su <strong>marca de clase ($m_i$)</strong>:
+            </p>
+            <div class="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 inline-block text-xs font-semibold text-slate-800">
+              $$m_i = \frac{L_i + L_s}{2} \qquad \implies \qquad \bar{x} = \frac{\sum_{i=1}^k (m_i \cdot f_i)}{n}$$
+            </div>
+          </div>
+
+          <!-- Tabla de Datos Agrupados -->
+          <div class="mt-8 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Estudio Clínico: Colesterol Sérico Total ($n = 100$ pacientes adultos)
+              </h3>
+              <span class="text-xs text-slate-500 font-mono">Unidades: $\text{mg/dL}$</span>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left text-xs sm:text-sm">
+                <thead class="bg-slate-100 text-slate-700 uppercase font-semibold text-[11px] border-b border-slate-200">
+                  <tr>
+                    <th class="p-3">Intervalo de Colesterol [Li - Ls)</th>
+                    <th class="p-3 text-center">Marca de Clase ($m_i$)</th>
+                    <th class="p-3 text-center">Frecuencia Absoluta ($f_i$)</th>
+                    <th class="p-3 text-right">Producto ($m_i \cdot f_i$)</th>
+                  </tr>
+                </thead>
+                <tbody id="grouped-table-body" class="divide-y divide-slate-100 font-mono">
+                  <!-- Filas dinámicas -->
+                </tbody>
+                <tfoot class="bg-slate-50 font-bold border-t-2 border-slate-300 text-slate-900 font-mono">
+                  <tr>
+                    <td class="p-3 font-sans uppercase text-xs">Sumatorias Totales ($\sum$)</td>
+                    <td class="p-3 text-center text-slate-400 font-sans text-xs">-</td>
+                    <td id="grouped-sum-f" class="p-3 text-center text-accent">n = 100</td>
+                    <td id="grouped-sum-mf" class="p-3 text-right text-rose-700">20,440 mg/dL</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Panel de Cálculo Final -->
+            <div class="p-5 bg-accent-light border border-accent/20 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4 text-slate-800">
+              <div class="space-y-1">
+                <span class="text-xs uppercase tracking-wider text-accent font-bold">Cálculo de la Media Ponderada Agrupada</span>
+                <div class="text-base sm:text-lg font-bold text-slate-900 font-mono">
+                  $$\bar{x} = \frac{\sum (m_i \cdot f_i)}{n} = \frac{20{,}440}{100} = \mathbf{204.4\,\text{mg/dL}}$$
+                </div>
+              </div>
+              <div class="text-xs text-slate-600 max-w-xs text-center md:text-right">
+                <strong>Interpretación médica:</strong> El promedio poblacional de colesterolemia se ubica levemente por encima del límite óptimo deseable ($<200\,\text{mg/dL}$).
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Pie de Página Institucional -->
+  <footer class="bg-white border-t border-gray-200 py-3 text-center text-xs text-gray-500 font-medium">
+    Desarrollado por vesalio - Todos los derechos reservados
+  </footer>
+
+  <!-- Modal: Vademécum Teórico Bioestadístico -->
+  <div id="modal-formulas" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-3xl w-full rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-accent p-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-book-bookmark text-xl"></i>
+          <h3 class="font-bold text-base">Vademécum Teórico: Medidas de Resumen Bioestadístico</h3>
+        </div>
+        <button onclick="closeFormulasModal()" class="text-white hover:text-gray-200 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto space-y-6 text-xs md:text-sm text-gray-700 custom-scrollbar leading-relaxed">
+        
+        <!-- 1. Tendencia Central -->
+        <div>
+          <h4 class="font-bold text-accent text-sm mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-bullseye"></i> 1. Medidas de Tendencia Central
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span class="font-bold text-slate-800">Media Aritmética:</span>
+              <div class="text-center my-1.5 font-mono text-accent">
+                $$\bar{x} = \frac{\sum x_i}{n} \quad \text{o} \quad \bar{x} = \frac{\sum (m_i \cdot f_i)}{n}$$
+              </div>
+              <p class="text-[11px] text-gray-600">Punto de equilibrio donde la suma de desvíos es nula.</p>
+            </div>
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200">
+              <span class="font-bold text-slate-800">Posición de la Mediana ($Me$):</span>
+              <div class="text-center my-1.5 font-mono text-rose-600">
+                $$\text{Pos}(Me) = \frac{n + 1}{2}$$
+              </div>
+              <p class="text-[11px] text-gray-600">Si $n$ es impar: dato único central. Si $n$ es par: semisuma de los dos datos centrales.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Tendencia No Central -->
+        <div>
+          <h4 class="font-bold text-accent text-sm mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-chart-column"></i> 2. Medidas de Tendencia No Central (Cuartiles)
+          </h4>
+          <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-2 text-xs">
+            <div class="text-center font-mono text-accent">
+              $$\text{Posición}(Q_k) = \frac{k(n + 1)}{4} \quad \text{para } k \in \{1, 2, 3\}$$
+            </div>
+            <p>• <strong>Primer Cuartil ($Q_1$):</strong> Acumula el $25\%$ de las observaciones inferiores ($P_{25}$).</p>
+            <p>• <strong>Segundo Cuartil ($Q_2$):</strong> Coincide idénticamente con la Mediana ($Me$) y el percentil 50 ($P_{50}$).</p>
+            <p>• <strong>Tercer Cuartil ($Q_3$):</strong> Acumula el $75\%$ de las observaciones inferiores ($P_{75}$).</p>
+            <p>• <strong>Rango Intercuartílico ($IQR$):</strong> $IQR = Q_3 - Q_1$, representa el $50\%$ central sin influencia de colas extremas.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-end">
+        <button onclick="closeFormulasModal()" class="px-5 py-2 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover text-xs transition shadow-sm">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Guía de Uso -->
+  <div id="modal-tutorial" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-4xl w-full rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-accent p-4 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-circle-question text-xl"></i>
+          <h3 class="font-bold text-base">Guía de Uso: Plataforma de Bioestadística Médica</h3>
+        </div>
+        <button onclick="closeTutorial()" class="text-white hover:text-gray-200 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto space-y-6 text-xs md:text-sm text-gray-700 custom-scrollbar leading-relaxed">
+        
+        <!-- 1. Navegación -->
+        <div>
+          <h4 class="font-bold text-accent text-sm mb-1 flex items-center gap-2">
+            <i class="fa-solid fa-compass"></i> 1. Navegación Modular Lateral
+          </h4>
+          <p class="text-gray-600">
+            Utiliza la barra lateral izquierda persistente para alternar entre los 5 módulos temáticos: Fundamentos de tendencia central, el Caso Clínico de Mantoux ($n=51$), Cuartiles y Percentiles, la Calculadora dinámica con diagramas de posición y el tratamiento de Datos Agrupados.
+          </p>
+        </div>
+
+        <!-- 2. Módulos Temáticos -->
+        <div>
+          <h4 class="font-bold text-accent text-sm mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-sliders"></i> 2. Módulos Temáticos y Características Didácticas
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+              <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                <i class="fa-solid fa-bullseye text-accent"></i> 1. Tendencia Central & Paridad
+              </div>
+              <p class="text-gray-600 text-[11px]">
+                • Explora la fórmula ordinal $\frac{n+1}{2}$.<br>
+                • Comprueba interactivamente cómo en el caso impar ($n=5$) la mediana pertenece a la muestra ($Me = 8$), mientras que en el caso par ($n=6$) surge como promedio ($Me = 10$).<br>
+                • Analiza el principio de robustez frente a valores atípicos (*outliers*).
+              </p>
+            </div>
+
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+              <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                <i class="fa-solid fa-syringe text-accent"></i> 2. Caso Mantoux ($n=51$)
+              </div>
+              <p class="text-gray-600 text-[11px]">
+                • Inspecciona los 51 diámetros ordenados de induración en vacunados con BCG.<br>
+                • Verifica la simetría exacta: 25 observaciones a la izquierda y 25 a la derecha de $x_{(26)} = 19\,\text{mm}$.<br>
+                • Identifica el pico modal $Mo = 20\,\text{mm}$ en el histograma interactivo.
+              </p>
+            </div>
+
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+              <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                <i class="fa-solid fa-chart-column text-accent"></i> 3. Cuartiles & Percentiles
+              </div>
+              <p class="text-gray-600 text-[11px]">
+                • Descomposición conceptual $25\% - 25\% - 25\% - 25\%$.<br>
+                • Fórmulas de posición $\text{Pos}(Q_k) = \frac{k(n+1)}{4}$.<br>
+                • Rango Intercuartílico ($IQR$) y percentiles pediátricos de crecimiento.
+              </p>
+            </div>
+
+            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5">
+              <div class="flex items-center gap-1.5 font-bold text-slate-800">
+                <i class="fa-solid fa-calculator text-accent"></i> 4. Calculadora Dinámica & Agrupados
+              </div>
+              <p class="text-gray-600 text-[11px]">
+                • Ingresa cualquier serie o carga presets (glucemias, Mantoux, par/impar).<br>
+                • Obtén la ordenación instantánea, estadísticos de resumen y diagrama de franjas.<br>
+                • En Datos Agrupados, analiza la tabla de colesterolemia con marcas de clase $m_i$ y media ponderada.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-end">
+        <button onclick="closeTutorial()" class="px-5 py-2 bg-accent text-white font-semibold rounded-lg hover:bg-accent-hover text-xs transition shadow-sm">
+          Comenzar Experiencia
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lógica y Scripts en JavaScript -->
+  <script>
+    // DATASET MANTOUX (n = 51 Pacientes con BCG, Orden Creciente)
+    const mantouxData = [
+      0, 2, 4, 6, 7, 8, 9, 10, 11, 12, 
+      13, 14, 15, 15, 16, 16, 17, 17, 18, 18, 
+      18, 18, 18, 19, 19, 
+      // Posición 26: Mediana = 19
+      19, 
+      // Observaciones 27 a 51 (25 valores)
+      19, 20, 20, 20, 20, 20, 20, 20, 21, 21, 
+      22, 22, 23, 23, 24, 25, 25, 26, 26, 27, 
+      28, 29, 30, 31, 32
+    ];
+
+    // Helper KaTeX
+    function renderMathWhenReady() {
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          ignoredClasses: ['no-math'],
+          throwOnError: false
+        });
+      }
+    }
+
+    // GESTIÓN DE PESTAÑAS (TABS)
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-accent', 'text-white', 'shadow-sm');
+        btn.classList.add('text-gray-700', 'hover:bg-gray-100');
+      });
+
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-accent', 'text-white', 'shadow-sm');
+        activeBtn.classList.remove('text-gray-700', 'hover:bg-gray-100');
+      }
+
+      ['central', 'mantoux', 'nocentral', 'calc', 'agrupados'].forEach(id => {
+        const view = document.getElementById(`view-${id}`);
+        if (view) {
+          view.classList.toggle('hidden', id !== tabId);
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      renderMathWhenReady();
+    }
+
+    function openFormulasModal() {
+      document.getElementById('modal-formulas').classList.remove('hidden');
+      renderMathWhenReady();
+    }
+
+    function closeFormulasModal() {
+      document.getElementById('modal-formulas').classList.add('hidden');
+    }
+
+    function openTutorial() {
+      document.getElementById('modal-tutorial').classList.remove('hidden');
+      renderMathWhenReady();
+    }
+
+    function closeTutorial() {
+      document.getElementById('modal-tutorial').classList.add('hidden');
+    }
+
+    // DEMOSTRACIÓN GUIADA PARIDAD DE N
+    function setParityDemo(mode) {
+      const btnOdd = document.getElementById('btn-demo-odd');
+      const btnEven = document.getElementById('btn-demo-even');
+      const container = document.getElementById('parity-demo-container');
+
+      if (mode === 'odd') {
+        btnOdd.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-accent shadow-sm';
+        btnEven.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900';
+        
+        container.innerHTML = `
+          <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-5">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-accent bg-accent-light px-2 py-0.5 rounded border border-accent/20">
+                  Condición Impar: Dato Único Central
+                </span>
+                <h4 class="text-base font-bold text-slate-900 mt-1">Serie Muestral: [3, 7, 8, 12, 15] ($n = 5$)</h4>
+              </div>
+              <div class="font-mono text-xs bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm text-accent font-bold">
+                $$\\text{Posición} = \\frac{5 + 1}{2} = 3 \\implies x_{(3)} = 8$$
+              </div>
+            </div>
+
+            <!-- Bloques de datos -->
+            <div class="flex flex-wrap items-center justify-center gap-3 py-2">
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(1)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">3</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(2)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">7</div>
+              </div>
+              <!-- Mediana central -->
+              <div class="flex flex-col items-center scale-110">
+                <span class="text-[10px] text-rose-600 font-bold font-mono mb-1">★ x(3) [MEDIANA]</span>
+                <div class="w-12 h-12 rounded-xl bg-rose-600 text-white flex items-center justify-center font-mono font-extrabold text-lg shadow-md ring-4 ring-rose-200">
+                  8
+                </div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(4)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">12</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(5)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">15</div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-accent-light border border-accent/20 rounded-xl text-xs text-slate-700 flex items-start gap-2.5">
+              <span class="text-accent font-bold text-base">✓</span>
+              <div>
+                <strong>Propiedad bioestadística demostrada:</strong> Al ser $n$ impar ($n=5$), la fórmula $\\frac{n+1}{2}$ arroja un número entero exacto ($3$). En consecuencia, <strong>la mediana coincide fidedignamente con un dato real observado en la muestra</strong> ($Me = 8$). Quedan exactamente 2 datos a la izquierda y 2 a la derecha.
+              </div>
+            </div>
+          </div>
+        `;
+      } else {
+        btnOdd.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-600 hover:text-slate-900';
+        btnEven.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all bg-white text-accent shadow-sm';
+
+        container.innerHTML = `
+          <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-5">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">
+                  Condición Par: Promedio de los Dos Centrales
+                </span>
+                <h4 class="text-base font-bold text-slate-900 mt-1">Serie Muestral: [4, 6, 9, 11, 13, 15] ($n = 6$)</h4>
+              </div>
+              <div class="font-mono text-xs bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm text-rose-700 font-bold">
+                $$\\text{Posición} = \\frac{6 + 1}{2} = 3.5 \\implies \\frac{9 + 11}{2} = 10$$
+              </div>
+            </div>
+
+            <!-- Bloques de datos -->
+            <div class="flex flex-wrap items-center justify-center gap-3 py-2">
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(1)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">4</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(2)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">6</div>
+              </div>
+              <!-- Par central con destaque -->
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-sky-700 font-bold font-mono mb-1">x(3)</span>
+                <div class="w-12 h-12 rounded-xl bg-sky-100 border-2 border-sky-400 flex items-center justify-center font-mono font-bold text-sky-900 shadow-sm">9</div>
+              </div>
+              <!-- Indicador de semirrecta Mediana -->
+              <div class="flex flex-col items-center px-1">
+                <span class="text-[10px] text-rose-600 font-bold font-mono mb-1">Me = 10</span>
+                <div class="h-12 flex items-center justify-center">
+                  <div class="w-1 h-10 bg-rose-600 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-sky-700 font-bold font-mono mb-1">x(4)</span>
+                <div class="w-12 h-12 rounded-xl bg-sky-100 border-2 border-sky-400 flex items-center justify-center font-mono font-bold text-sky-900 shadow-sm">11</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(5)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">13</div>
+              </div>
+              <div class="flex flex-col items-center">
+                <span class="text-[10px] text-slate-400 font-mono mb-1">x(6)</span>
+                <div class="w-12 h-12 rounded-xl bg-white border border-slate-300 flex items-center justify-center font-mono font-bold text-slate-800 shadow-sm">15</div>
+              </div>
+            </div>
+
+            <div class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-900 flex items-start gap-2.5">
+              <span class="text-rose-600 font-bold text-base">★</span>
+              <div>
+                <strong>Principio bioestadístico crucial:</strong> Al ser $n$ par ($n=6$), la posición es fraccionaria ($3.5$). La mediana se obtiene promediando los dos datos centrales: $Me = \\frac{9 + 11}{2} = 10$. 
+                <strong>Note que el valor $10$ no pertenece al conjunto de datos original</strong>, demostrando que la mediana es una medida de corte de probabilidad y posición, no necesariamente un valor muestral preexistente.
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      renderMathWhenReady();
+    }
+
+    // EXPLORADOR DE MANTOUX
+    function initMantouxVisualizer() {
+      const grid = document.getElementById('mantoux-chips-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      mantouxData.forEach((val, idx) => {
+        const ord = idx + 1;
+        const btn = document.createElement('button');
+        btn.id = `chip-mantoux-${ord}`;
+        btn.onclick = () => inspectMantouxPatient(ord, val);
+
+        let colorClasses = 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100';
+        if (ord < 26) {
+          colorClasses = 'bg-sky-50 text-sky-800 border-sky-200 hover:bg-sky-100';
+        } else if (ord === 26) {
+          colorClasses = 'bg-rose-600 text-white font-bold border-rose-600 ring-2 ring-rose-200 shadow-sm';
+        } else {
+          colorClasses = 'bg-indigo-50 text-indigo-800 border-indigo-200 hover:bg-indigo-100';
+        }
+
+        btn.className = `p-2 rounded-xl border text-center transition-all ${colorClasses}`;
+        btn.innerHTML = `
+          <div class="text-[9px] opacity-60 font-mono">x(${ord})</div>
+          <div class="font-mono font-bold text-xs">${val}</div>
+        `;
+        grid.appendChild(btn);
+      });
+
+      initMantouxHistogram();
+    }
+
+    function inspectMantouxPatient(ord, val) {
+      document.getElementById('insp-badge').textContent = `x(${ord})`;
+      document.getElementById('insp-val').textContent = `${val} mm`;
+
+      const title = document.getElementById('insp-title');
+      const stat = document.getElementById('insp-stat');
+
+      if (ord < 26) {
+        title.textContent = `Individuo Ordinal #${ord} (Mitad Inferior)`;
+        stat.textContent = `≤ Mediana (${26 - ord} posiciones antes de Me)`;
+        stat.className = 'text-xs font-semibold text-sky-400';
+      } else if (ord === 26) {
+        title.textContent = `Individuo Ordinal #26 (Pivote Mediano Central)`;
+        stat.textContent = `Mediana Exacta (P50 = 19 mm)`;
+        stat.className = 'text-xs font-semibold text-rose-400';
+      } else {
+        title.textContent = `Individuo Ordinal #${ord} (Mitad Superior)`;
+        stat.textContent = `≥ Mediana (${ord - 26} posiciones después de Me)`;
+        stat.className = 'text-xs font-semibold text-indigo-400';
+      }
+    }
+
+    function initMantouxHistogram() {
+      const container = document.getElementById('mantoux-histogram');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const counts = {};
+      mantouxData.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
+      const uniqueVals = Object.keys(counts).map(Number).sort((a,b) => a - b);
+      const maxF = Math.max(...Object.values(counts));
+
+      uniqueVals.forEach(v => {
+        const count = counts[v];
+        const heightPct = (count / maxF) * 100;
+        const isMode = (count === maxF);
+
+        const barCol = document.createElement('div');
+        barCol.className = 'flex flex-col items-center flex-1 h-full justify-end group min-w-[20px]';
+
+        let barColor = isMode ? 'bg-accent' : 'bg-slate-300 group-hover:bg-slate-400';
+        if (v === 19) barColor = 'bg-rose-500';
+
+        barCol.innerHTML = `
+          <span class="text-[10px] font-mono font-bold mb-1 ${isMode ? 'text-accent' : 'text-slate-500'}">${count}</span>
+          <div class="w-full ${barColor} rounded-t-md transition-all duration-300" style="height: ${heightPct}%;"></div>
+          <span class="text-[9px] font-mono mt-1 ${isMode ? 'text-accent font-bold' : 'text-slate-600'}">${v}</span>
+        `;
+        container.appendChild(barCol);
+      });
+    }
+
+    // CALCULADORA DINÁMICA
+    function loadCalcPreset(type) {
+      const input = document.getElementById('calc-input');
+      if (type === 'mantoux') {
+        input.value = mantouxData.join(', ');
+      } else if (type === 'odd5') {
+        input.value = "3, 7, 8, 12, 15";
+      } else if (type === 'even6') {
+        input.value = "4, 6, 9, 11, 13, 15";
+      } else if (type === 'glucose') {
+        input.value = "72, 85, 90, 94, 98, 102, 110, 115, 126, 140, 210";
+      }
+      runCalculator();
+    }
+
+    function runCalculator() {
+      const rawText = document.getElementById('calc-input').value;
+      const parsed = rawText.split(/[\s,]+/).map(Number).filter(n => !isNaN(n));
+
+      if (parsed.length < 3) {
+        alert("Por favor ingrese al menos 3 números válidos.");
+        return;
+      }
+
+      parsed.sort((a,b) => a - b);
+      const n = parsed.length;
+
+      // Media
+      const sum = parsed.reduce((acc, curr) => acc + curr, 0);
+      const mean = sum / n;
+
+      // Mediana
+      let median = 0;
+      let medianExplanation = "";
+      const posMed = (n + 1) / 2;
+
+      if (n % 2 !== 0) {
+        const idx = Math.floor(posMed) - 1;
+        median = parsed[idx];
+        medianExplanation = `Como $n = ${n}$ es <strong>impar</strong>, la posición es exacta: $\\frac{${n}+1}{2} = ${posMed}$. El dato mediano es $x_{(${posMed})} = \\mathbf{${median}}$.`;
+      } else {
+        const idx1 = (n / 2) - 1;
+        const idx2 = (n / 2);
+        median = (parsed[idx1] + parsed[idx2]) / 2;
+        medianExplanation = `Como $n = ${n}$ es <strong>par</strong>, la posición ordinal es $\\frac{${n}+1}{2} = ${posMed}$. Se promedian los dos datos centrales: $\\frac{x_{(${idx1+1})} + x_{(${idx2+1})}}{2} = \\frac{${parsed[idx1]} + ${parsed[idx2]}}{2} = \\mathbf{${median}}$.`;
+      }
+
+      // Moda
+      const counts = {};
+      parsed.forEach(x => { counts[x] = (counts[x] || 0) + 1; });
+      let maxFreq = 0;
+      for (const val in counts) {
+        if (counts[val] > maxFreq) maxFreq = counts[val];
+      }
+      const modes = [];
+      for (const val in counts) {
+        if (counts[val] === maxFreq && maxFreq > 1) {
+          modes.push(Number(val));
+        }
+      }
+      let modeText = modes.length > 0 ? modes.join(', ') : 'Amodal (todos con frecuencia 1)';
+
+      // Cuartiles
+      function getPercentileValue(arr, p) {
+        const index = p * (arr.length - 1);
+        const lower = Math.floor(index);
+        const upper = Math.ceil(index);
+        const weight = index - lower;
+        return arr[lower] * (1 - weight) + arr[upper] * weight;
+      }
+
+      const q1 = getPercentileValue(parsed, 0.25);
+      const q2 = median;
+      const q3 = getPercentileValue(parsed, 0.75);
+      const minVal = parsed[0];
+      const maxVal = parsed[n - 1];
+      const iqr = q3 - q1;
+
+      const resultsDiv = document.getElementById('calc-results-wrapper');
+      resultsDiv.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Muestra</span>
+            <div class="text-xl font-mono font-bold text-slate-800">n = ${n}</div>
+            <span class="text-[11px] text-slate-500 font-semibold">${n % 2 !== 0 ? 'Impar' : 'Par'}</span>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Media ($\bar{x}$)</span>
+            <div class="text-xl font-mono font-bold text-accent">${mean.toFixed(2)}</div>
+            <span class="text-[11px] text-slate-500 font-mono">Σ = ${sum}</span>
+          </div>
+          <div class="p-4 bg-rose-50 rounded-xl border border-rose-200">
+            <span class="text-[10px] font-bold uppercase text-rose-700">Mediana ($Me$)</span>
+            <div class="text-xl font-mono font-extrabold text-rose-700">${median.toFixed(2)}</div>
+            <span class="text-[11px] text-rose-600 font-mono">Pos = ${posMed}</span>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <span class="text-[10px] font-bold uppercase text-slate-500">Moda ($Mo$)</span>
+            <div class="text-lg font-mono font-bold text-slate-800 truncate">${modeText}</div>
+            <span class="text-[11px] text-slate-500">${maxFreq > 1 ? `f_i = ${maxFreq}` : 'Sin repetición'}</span>
+          </div>
+        </div>
+
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs leading-relaxed text-slate-700">
+          <strong class="text-slate-900 block mb-1">Paso a paso de la Mediana:</strong>
+          ${medianExplanation}
+        </div>
+
+        <!-- Cuartiles y Franjas -->
+        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between text-xs border-b border-slate-200 pb-2">
+            <h4 class="font-bold text-slate-900 uppercase tracking-wider">Desglose Cuartilar & Percentiles</h4>
+            <span class="font-mono font-semibold text-accent">IQR = ${iqr.toFixed(2)}</span>
+          </div>
+
+          <div class="grid grid-cols-5 gap-2 text-center text-xs font-mono">
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] font-sans text-slate-500 block">Mínimo</span>
+              <strong class="text-slate-800 text-sm">${minVal}</strong>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] font-sans text-accent block">Q1 (25%)</span>
+              <strong class="text-accent text-sm">${q1.toFixed(2)}</strong>
+            </div>
+            <div class="bg-rose-50 p-2.5 rounded-xl border border-rose-300">
+              <span class="text-[10px] font-sans text-rose-700 font-bold block">Q2 (Mediana)</span>
+              <strong class="text-rose-700 text-sm">${q2.toFixed(2)}</strong>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] font-sans text-accent block">Q3 (75%)</span>
+              <strong class="text-accent text-sm">${q3.toFixed(2)}</strong>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <span class="text-[10px] font-sans text-slate-500 block">Máximo</span>
+              <strong class="text-slate-800 text-sm">${maxVal}</strong>
+            </div>
+          </div>
+        </div>
+      `;
+
+      renderMathWhenReady();
+    }
+
+    // DATOS AGRUPADOS (Colesterol en 100 pacientes)
+    const groupedData = [
+      { interval: "[140 - 160)", mi: 150, fi: 8 },
+      { interval: "[160 - 180)", mi: 170, fi: 16 },
+      { interval: "[180 - 200)", mi: 190, fi: 24 },
+      { interval: "[200 - 220)", mi: 210, fi: 28 },
+      { interval: "[220 - 240)", mi: 230, fi: 14 },
+      { interval: "[240 - 260)", mi: 250, fi: 7 },
+      { interval: "[260 - 280)", mi: 270, fi: 3 }
+    ];
+
+    function initGroupedTable() {
+      const tbody = document.getElementById('grouped-table-body');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      let totalF = 0;
+      let totalMF = 0;
+
+      groupedData.forEach(row => {
+        const mf = row.mi * row.fi;
+        totalF += row.fi;
+        totalMF += mf;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50/80 transition';
+        tr.innerHTML = `
+          <td class="p-3 text-slate-800 font-sans font-medium">${row.interval}</td>
+          <td class="p-3 text-center text-slate-700 font-mono">${row.mi}</td>
+          <td class="p-3 text-center font-bold text-slate-900 font-mono">${row.fi}</td>
+          <td class="p-3 text-right text-accent font-bold font-mono">${mf.toLocaleString('es-AR')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('grouped-sum-f').textContent = `n = ${totalF}`;
+      document.getElementById('grouped-sum-mf').textContent = `${totalMF.toLocaleString('es-AR')} mg/dL`;
+    }
+
+    // INICIALIZACIÓN
+    window.onload = function() {
+      setParityDemo('odd');
+      initMantouxVisualizer();
+      initGroupedTable();
+      loadCalcPreset('mantoux');
+      renderMathWhenReady();
+    };
+  </script>
+</body>
+</html>
